@@ -1,0 +1,23 @@
+language: cpp
+compiler:
+  - clang
+notifications:
+  email: false
+env:
+  matrix:
+    - JULIAVERSION="juliareleases"
+    - JULIAVERSION="julianightlies"
+before_install:
+  - sudo add-apt-repository ppa:staticfloat/julia-deps -y
+  - sudo add-apt-repository ppa:staticfloat/${JULIAVERSION} -y
+  - sudo apt-get update -qq -y
+  - sudo apt-get install libpcre3-dev julia -y
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+# TODO: When ConjugatePriors is published, remove bellow clone from github
+#       and add the dependency in REQUIRE file.
+script:
+  - julia -e 'Pkg.init()'
+  - julia -e 'Pkg.clone(pwd())'
+  - julia -e 'Pkg.clone("git://github.com/lindahua/NumericExtensions.jl.git")'
+  - julia -e 'Pkg.clone("git://github.com/JuliaStats/ConjugatePriors.jl.git")'
+  - julia -e 'Pkg.test("DirichletProcessMixtures")'
